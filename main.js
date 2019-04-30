@@ -3,7 +3,10 @@ let canvas = document.getElementById('canvas');
 let scene= new THREE.Scene();
 let camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1,1000);
 let renderer = new THREE.WebGLRenderer(canvas);
-
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+console.log(window.innerHeight);
+console.log(window.innerWidth);
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);//разобраться что тут происходит
 //Game over popup
@@ -30,9 +33,10 @@ let negativeObstaclePoolAngles = [];
 let obstaclesSpeed = 0.05;
 let mobileControls = false;
 
-if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|BB|PlayBook|IEMobile|Windows Phone|Kindle|Silk|Opera Mini/i.test(navigator.userAgent)) {
+/*if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|BB|PlayBook|IEMobile|Windows Phone|Kindle|Silk|Opera Mini/i.test(navigator.userAgent)) {
     mobileControls = true;
-}
+    console.log("mobile games");
+}*/
 
 //resizing
 window.addEventListener('resize', function(){
