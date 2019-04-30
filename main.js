@@ -25,18 +25,13 @@ let angle;
 let mouseX;
 let deltaX = 0;
 let mouseDown = false;
-let clientX = 0;
 let skittlePool = [];
 let skittlePoolAngles = [];
 let negativeObstaclesPool = [];
 let negativeObstaclePoolAngles = [];
 let obstaclesSpeed = 0.05;
-let mobileControls = false;
-
-/*if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|BB|PlayBook|IEMobile|Windows Phone|Kindle|Silk|Opera Mini/i.test(navigator.userAgent)) {
-    mobileControls = true;
-    console.log("mobile games");
-}*/
+let sensivity=300;
+let mobileSensivity =75;
 
 //resizing
 window.addEventListener('resize', function(){
@@ -147,46 +142,59 @@ Initialize();
 
 
 //Controls
-RotateCylinder = function(e) {
+RotateCylinderWithMouse = function(e) {
     mouseX = e.clientX;
-    e.preventDefault();
-    document.addEventListener( 'mousemove', onDocumentMouseMoving, false );
-    document.addEventListener( 'mouseup', onDocumentMouseUp, false );
-    document.addEventListener( 'mouseout', onDocumentMouseOut, false );
-    document.addEventListener( 'touchmove', onDocumentMouseMoving, false );
-    document.addEventListener( 'touchend', onDocumentMouseUp, false );
-    document.addEventListener( 'touchcancel', onDocumentMouseOut, false );
+   // e.preventDefault();
+    document.addEventListener( 'mousemove', OnDocumentMouseMoving, false );
+    document.addEventListener( 'mouseup', OnDocumentMouseUp, false );
+    document.addEventListener( 'mouseout', OnDocumentMouseOut, false );
+
     mouseDown = true;
 };
-document.addEventListener('mousedown', RotateCylinder);
-document.addEventListener('touchstart', RotateCylinder);
-onDocumentMouseMoving = function(e){
-    clientX = e.clientX;
-    if(mobileControls) {
-        deltaX = e.touches[0].clientX - mouseX;
-    }
+RotateCylinderWithTouch = function(e){
+    mouseX = e.touches[0].clientX;
+    document.addEventListener( 'touchmove', OnDocumentTouchMoving, false );
+    document.addEventListener( 'touchend', OnDocumentTouchEnd, false );
+    document.addEventListener( 'touchcancel', OnDocumentTouchEnd, false );
+};
+document.addEventListener('mousedown', RotateCylinderWithMouse);
+document.addEventListener('touchstart', RotateCylinderWithTouch);
+//Move with Mouse
+OnDocumentMouseMoving = function(e){
     deltaX = e.clientX - mouseX;
+    deltaX/=sensivity;
     mouseX = e.clientX;
 }
-onDocumentMouseUp = function(e){
+//Move with touch
+OnDocumentTouchMoving = function(e){
+        deltaX = e.touches[0].clientX - mouseX;
+        deltaX/=mobileSensivity;
+    mouseX = e.touches[0].clientX;
+    console.log("mobile move");
+
+}
+OnDocumentTouchEnd = function()
+{
+   // deltaX=0;
+    document.addEventListener( 'touchmove', OnDocumentTouchMoving, false );
+    document.addEventListener( 'touchend', OnDocumentMouseUp, false );
+    document.addEventListener( 'touchcancel', OnDocumentMouseOut, false );
+}
+OnDocumentMouseUp = function(e){
     deltaX=0;
-    document.removeEventListener( 'mousemove', onDocumentMouseMoving, false );
-    document.removeEventListener( 'mouseup', onDocumentMouseUp, false );
-    document.removeEventListener( 'mouseout', onDocumentMouseOut, false );
-    document.addEventListener( 'touchmove', onDocumentMouseMoving, false );
-    document.addEventListener( 'touchend', onDocumentMouseUp, false );
-    document.addEventListener( 'touchcancel', onDocumentMouseOut, false );
+    document.removeEventListener( 'mousemove', OnDocumentMouseMoving, false );
+    document.removeEventListener( 'mouseup', OnDocumentMouseUp, false );
+    document.removeEventListener( 'mouseout', OnDocumentMouseOut, false );
+
 };
-onDocumentMouseOut = function(e){
+onDocumentTouchCancelled = function(){
+
+}
+OnDocumentMouseOut = function(e){
     deltaX=0;
-    document.removeEventListener( 'mousemove', onDocumentMouseMoving, false );
-    document.removeEventListener( 'mouseup', onDocumentMouseUp, false );
-    document.removeEventListener( 'mouseout', onDocumentMouseOut, false );
-    document.addEventListener( 'touchmove', onDocumentMouseMoving, false );
-    document.addEventListener( 'touchend', onDocumentMouseUp, false );
-    document.addEventListener( 'touchcancel', onDocumentMouseOut, false );
-
-
+    document.removeEventListener( 'mousemove', OnDocumentMouseMoving, false );
+    document.removeEventListener( 'mouseup', OnDocumentMouseUp, false );
+    document.removeEventListener( 'mouseout', OnDocumentMouseOut, false );
 };
 let exit = false;
 
@@ -236,8 +244,8 @@ let Update=function(){
             GameOver();
         }
     }
-    if(Math.abs(deltaX)>1.4) {
-        angle = deltaX/500;
+    if(Math.abs(deltaX)>(1.4/500)) {
+        angle = deltaX;
         cylinder.rotation.y -= Math.sin(angle);
         //moving skittles
         for(let i =0; i<skittlesCount; i++)
