@@ -156,7 +156,7 @@ onDocumentMouseMoving = function(e){
     clientX = e.clientX;
     if(e.touches[0])
     {
-        deltaX = e.touches[0] - mouseX;
+        deltaX = e.touches[0].clientX - mouseX;
     }
     deltaX = e.clientX - mouseX;
     mouseX = e.clientX;
