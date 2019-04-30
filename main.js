@@ -28,7 +28,11 @@ let skittlePoolAngles = [];
 let negativeObstaclesPool = [];
 let negativeObstaclePoolAngles = [];
 let obstaclesSpeed = 0.05;
+let mobileControls = false;
 
+if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|BB|PlayBook|IEMobile|Windows Phone|Kindle|Silk|Opera Mini/i.test(navigator.userAgent)) {
+    mobileControls = true;
+}
 
 //resizing
 window.addEventListener('resize', function(){
@@ -154,8 +158,7 @@ document.addEventListener('mousedown', RotateCylinder);
 document.addEventListener('touchstart', RotateCylinder);
 onDocumentMouseMoving = function(e){
     clientX = e.clientX;
-    if(e.touches[0])
-    {
+    if(mobileControls) {
         deltaX = e.touches[0].clientX - mouseX;
     }
     deltaX = e.clientX - mouseX;
