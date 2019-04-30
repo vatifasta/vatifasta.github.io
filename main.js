@@ -113,7 +113,7 @@ let deletingNegativeObject = function(i){
 //Initializing function
 let Initialize = function() {
     //creating skittles
-    let obstaclesSpeed = 0.5;
+    obstaclesSpeed = 0.5;
     for(let i =0;i<skittlesCount;i++)
     {
         if(skittlePool[i]) {
@@ -145,9 +145,13 @@ RotateCylinder = function(e) {
     document.addEventListener( 'mousemove', onDocumentMouseMoving, false );
     document.addEventListener( 'mouseup', onDocumentMouseUp, false );
     document.addEventListener( 'mouseout', onDocumentMouseOut, false );
+    document.addEventListener( 'touchmove', onDocumentMouseMoving, false );
+    document.addEventListener( 'touchend', onDocumentMouseUp, false );
+    document.addEventListener( 'touchcancel', onDocumentMouseOut, false );
     mouseDown = true;
 };
 document.addEventListener('mousedown', RotateCylinder);
+document.addEventListener('touchstart', RotateCylinder);
 onDocumentMouseMoving = function(e){
     clientX = e.clientX;
     deltaX = e.clientX - mouseX;
@@ -158,12 +162,18 @@ onDocumentMouseUp = function(e){
     document.removeEventListener( 'mousemove', onDocumentMouseMoving, false );
     document.removeEventListener( 'mouseup', onDocumentMouseUp, false );
     document.removeEventListener( 'mouseout', onDocumentMouseOut, false );
+    document.addEventListener( 'touchmove', onDocumentMouseMoving, false );
+    document.addEventListener( 'touchend', onDocumentMouseUp, false );
+    document.addEventListener( 'touchcancel', onDocumentMouseOut, false );
 };
 onDocumentMouseOut = function(e){
     deltaX=0;
     document.removeEventListener( 'mousemove', onDocumentMouseMoving, false );
     document.removeEventListener( 'mouseup', onDocumentMouseUp, false );
     document.removeEventListener( 'mouseout', onDocumentMouseOut, false );
+    document.addEventListener( 'touchmove', onDocumentMouseMoving, false );
+    document.addEventListener( 'touchend', onDocumentMouseUp, false );
+    document.addEventListener( 'touchcancel', onDocumentMouseOut, false );
 
 
 };
