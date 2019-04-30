@@ -113,7 +113,7 @@ let deletingNegativeObject = function(i){
 //Initializing function
 let Initialize = function() {
     //creating skittles
-    obstaclesSpeed = 0.5;
+    obstaclesSpeed = 0.05;
     for(let i =0;i<skittlesCount;i++)
     {
         if(skittlePool[i]) {
