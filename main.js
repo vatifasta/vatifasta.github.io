@@ -154,6 +154,10 @@ document.addEventListener('mousedown', RotateCylinder);
 document.addEventListener('touchstart', RotateCylinder);
 onDocumentMouseMoving = function(e){
     clientX = e.clientX;
+    if(e.touches[0])
+    {
+        deltaX = e.touches[0] - mouseX;
+    }
     deltaX = e.clientX - mouseX;
     mouseX = e.clientX;
 }
