@@ -7,6 +7,9 @@ canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
 renderer.setSize(window.innerWidth, window.innerHeight);
+let backgroundColor = new THREE.Color(0/255,24/255,37/255);
+backgroundColor.alpha = 1;
+scene.background = backgroundColor;
 document.body.appendChild(renderer.domElement);//разобраться что тут происходит
 //Game over popup
 let gameOverUIPopup = document.getElementById('gameOver');
@@ -38,8 +41,10 @@ window.addEventListener('resize', function(){
     var height = window.innerHeight;
     renderer.setSize(width, height);
     camera.aspect = width/height;
-    camera.updateProjectionMatrix();
+    camera.updateProjectionMatrix();//что это разобраться
 });
+
+
 //creating main Cylinder
 let cylinderGeometry = new THREE.CylinderGeometry(cylinderRadius,cylinderRadius,35,60);
 let cylinderTexture = new THREE.TextureLoader().load("./images/floor.png");
@@ -104,10 +109,9 @@ let createPin = function(i){
 
     loader.load("./models/bowlPin.obj",function(object){
         object.position.set(randomXPosition,randomYPosition,randomZPosition);
-        console.log(randomXPosition,randomYPosition,randomZPosition);
         object.rotation.z=pinPoolAngles[i];
-        object.traverse( function( child ) {
-            if ( child instanceof THREE.Mesh ) {
+        object.traverse( function( child ) {//разобрать с traverse
+            if ( child instanceof THREE.Mesh ) {//и с этим тоже
                 child.material = sMaterial;
             }
         } );
