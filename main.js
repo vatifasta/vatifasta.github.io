@@ -46,7 +46,7 @@ let cylinderTexture = new THREE.TextureLoader().load("./images/floor.png");
 cylinderTexture.wrapT = THREE.RepeatWrapping;
 cylinderTexture.wrapS =THREE.RepeatWrapping;
 cylinderTexture.repeat.set(2,2);
-var cylinderMaterial = new THREE.MeshLambertMaterial( { map: cylinderTexture, side: THREE.DoubleSide } );
+var cylinderMaterial = new THREE.MeshLambertMaterial( { map: cylinderTexture } );//
 
 var cylinder = new THREE.Mesh( cylinderGeometry, cylinderMaterial );
 scene.add( cylinder );
@@ -76,6 +76,9 @@ scene.add( gridHelper );
 //creating lights
 
 let lighting = new THREE.DirectionalLight(0xffffff, 1);
+lighting.position.set(0,1,1);
+lighting.rotation.set(-1,-0.6,0.6);
+//let lightningPoint = new THREE.PointLight(0xffffff, 1, 1,);
 scene.add(lighting);
 //controls Orbit
 
