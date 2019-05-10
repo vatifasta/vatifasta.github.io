@@ -18,11 +18,18 @@ body {
     position:absolute;
     left:35%;
     top:20%;
-
-
 }
 
 canvas {
     display:block;
+
+}
+#score{
+    font-size: 54px;
+    z-index:3;
+    position: absolute;
+    text-align: center;
+    color: white;
+    left: 49%;
 
 }

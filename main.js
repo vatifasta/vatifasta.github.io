@@ -1,7 +1,8 @@
 let canvas = document.getElementById('canvas');
 //creating scene and camera
 let scene= new THREE.Scene();
-let camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1,10000);
+scene.fog = new THREE.Fog(0x000000, 0.1, 20);
+let camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1,15);
 let renderer = new THREE.WebGLRenderer(canvas);
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
@@ -20,20 +21,37 @@ let cylinderRadius = 1 ;
 let sphereRadius = 0.15;
 let mainBallYPosition = cylinderRadius+sphereRadius+0.1;
 let gamePlaying;
-let score;
-let pinsCount = 10;
-let negativeObstaclesCount = 5;
+
+
 let angle;
 let mouseX;
 let deltaX = 0;
 let mouseDown = false;
+
+//pins variables
+let pinsCount = 10;
 let pinPool = [];
 let pinPoolAngles = [];
+let pinPoolPosition = [];
+
+//negative obstacles variables
 let negativeObstaclesPool = [];
 let negativeObstaclePoolAngles = [];
-let obstaclesSpeed = 0.05;
+let negativeObstaclesCount = 10;
+let negativeObstaclePoolPositon = [];
+
+//speed obstacles
+let obstaclesSpeed = 0.3;
+let addingSpeed = 0.00001;
+let addingSpriteSpeed = 0.003;
+
+//sensivity variables
 let sensitivity=300;
 let mobileSensitivity =70;
+
+//score variables
+let score;
+let scoreUI = document.getElementById("score");
 
 //resizing
 window.addEventListener('resize', function(){
@@ -61,7 +79,7 @@ cylinder.rotation.x = Math.PI/2;
 
 let ballGeometry = new THREE.SphereGeometry(sphereRadius*2,64,64);
 let mainBallTexture = new THREE.TextureLoader().load("./images/ball.png");
-let ballMaterial = new THREE.MeshLambertMaterial({color:0xffffff});//map: mainBallTexture
+let ballMaterial = new THREE.MeshLambertMaterial({map: mainBallTexture});//map: mainBallTexture
 let mainBall = new THREE.Mesh(ballGeometry, ballMaterial);
 mainBall.position.set(0,mainBallYPosition,-1.5);
 let mainBallPosition = new THREE.Vector3(0, mainBallYPosition, -1.5);
@@ -70,13 +88,13 @@ camera.position.y=2.3;
 
 camera.rotation.x = -0.6;
 //Axes
-let axes = new THREE.AxesHelper(5);
+//let axes = new THREE.AxesHelper(5);
 
-scene.add( axes );
+//scene.add( axes );
 //grid
-gridHelper = new THREE.GridHelper(50,100);
-gridHelper.position.set(0,0,0);
-scene.add( gridHelper );
+// gridHelper = new THREE.GridHelper(50,100);
+// gridHelper.position.set(0,0,0);
+// scene.add( gridHelper );
 
 //creating lights
 
@@ -93,11 +111,34 @@ scene.add(lighting);
 
 //creating skittle
 let createPin = function(i){
+    while(1) {
+        pinPoolAngles[i] = Math.random() * 2 * Math.PI;
+        var randomXPosition = -Math.sin(pinPoolAngles[i])*(cylinderRadius);
+        var randomYPosition = Math.cos(pinPoolAngles[i])*(cylinderRadius);
+        var randomZPosition = Math.random()*(-20)-15;
+        pinPoolPosition[i] = new THREE.Vector3(randomXPosition,randomYPosition,randomZPosition);
+        for (let j = 0; j < pinsCount; j++) {
+            if(pinPoolPosition[j])
+            {
+                if(Math.abs(pinPoolPosition[i].distanceTo(pinPoolPosition[j])<1.5)&&i!=j)
+                {
+                    console.log('reposition');
+                    continue;
+                }
+            }
+        }
+        for (let j = 0; j < negativeObstaclesCount; j++) {
+            if(negativeObstaclesPool[j])
+            {
+                if(Math.abs(pinPoolPosition[i].distanceTo(negativeObstaclePoolPositon[j])<1.5)&&i!=j)
+                {
+                    continue;
+                }
+            }
+        }
+        break;
+    }
 
-    pinPoolAngles[i] = Math.random()*2*Math.PI;
-    let randomXPosition = -Math.sin(pinPoolAngles[i])*(cylinderRadius);
-    let randomYPosition = Math.cos(pinPoolAngles[i])*(cylinderRadius);
-    let randomZPosition = Math.random()*(-15)-7;
     let sMaterial = new THREE.MeshLambertMaterial( { color: 0xff00ff } );
     let modelLoaded= function(){
 
@@ -116,18 +157,7 @@ let createPin = function(i){
             }
         } );
         pinPool[i] = object;
-        //scene.add(pinPool[i]);
-
     })
-
-   // let sGeometry = new THREE.CylinderGeometry(0.2,0.2,1,15);
-
-    //pinPool[i] = new THREE.Mesh( sGeometry, sMaterial );
-    //pinPool[i].position.set(randomXPosition,randomYPosition,randomZPosition);
-    /*console.log(pinPool[i].position);
-    pinPool[i].rotation.z = pinPoolAngles[i];*/
-
-
 }
 //deleting skittles
 let deletingPin = function(i){
@@ -136,13 +166,28 @@ let deletingPin = function(i){
 }
 //creating Negative Objects
 let createNegativeObject = function(i){
+    while(1) {
+        negativeObstaclePoolAngles[i] = Math.random()*2*Math.PI;
+        var randomXPosition = -Math.sin(negativeObstaclePoolAngles[i])*(cylinderRadius+0.05);
+        var randomYPosition = Math.cos(negativeObstaclePoolAngles[i])*(cylinderRadius+0.05);
+        var randomZPosition = Math.random()*(-20)-15;
+        negativeObstaclePoolPositon[i] = new THREE.Vector3(randomXPosition,randomYPosition,randomZPosition);
+        for (let j = 0; j < negativeObstaclesCount; j++) {
+            if(negativeObstaclesPool[j])
+            {
+                if(Math.abs(negativeObstaclePoolPositon[i].distanceTo(negativeObstaclePoolPositon[j])<1.5)&&i!=j)
+                {
+                    continue;
+                }
+            }
+        }
+        break;
+    }
     let negativeObjectGeometry = new THREE.SphereGeometry(0.2,8,8);
     let negativeObjectMaterial = new THREE.MeshLambertMaterial( { color: 0xff0000 } );
     negativeObstaclesPool[i] = new THREE.Mesh( negativeObjectGeometry, negativeObjectMaterial );
-    negativeObstaclePoolAngles[i] = Math.random()*2*Math.PI;
-    let randomXPosition = -Math.sin(negativeObstaclePoolAngles[i])*(cylinderRadius+0.05);
-    let randomYPosition = Math.cos(negativeObstaclePoolAngles[i])*(cylinderRadius+0.05);
-    let randomZPosition = Math.random()*(-15)-5;
+
+
     negativeObstaclesPool[i].position.set(randomXPosition,randomYPosition,randomZPosition);
     negativeObstaclesPool[i].rotation.z = negativeObstaclePoolAngles[i];
     scene.add(negativeObstaclesPool[i]);
@@ -176,6 +221,7 @@ let Initialize = function() {
     angle = 0;
     gameOverUIPopup.style.visibility = "hidden";
     console.log("initialize");
+    scoreUI.innerText = score;
 }
 Initialize();
 
@@ -249,9 +295,10 @@ let GameOver = function(){
 
 
 let Update=function(){
-    obstaclesSpeed+=0.00001;
+    obstaclesSpeed+=addingSpeed;
     mainBall.rotation.x-=0.1;
-    cylinderTexture.offset.y-=0.005;
+    addingSpriteSpeed+=0.0000005;
+    cylinderTexture.offset.y-=addingSpriteSpeed;
     for(let i =0; i<pinsCount; i++)
     {
         pinPool[i].position.z+=obstaclesSpeed;
@@ -265,6 +312,8 @@ let Update=function(){
         if(skittlePosition.distanceTo(mainBallPosition)<0.52)
         {
             score++;
+            scoreUI.innerText = score;
+            //var physics = new THREE.MMDLoader().load()
             deletingPin(i);
             createPin(i);
         }
@@ -285,7 +334,7 @@ let Update=function(){
             GameOver();
         }
     }
-    if(Math.abs(deltaX)>(1.4/500)) {
+    if(Math.abs(deltaX)>(2/500)) {
         angle = deltaX;
         cylinder.rotation.y -= Math.sin(angle);
         //moving skittles
@@ -319,7 +368,6 @@ var Render = function(e){
 var GameLoop = function()
 {
 
-    //document.addEventListener('onMouseDown', RotateCylinder);
     Update();
     Render();
     if(!exit) {
