@@ -26,21 +26,21 @@ scene.add(lighting);
 
 //UI
 let gameOverUIPopup = document.getElementById('gameOver');
-scene.add(gameOverUIPopup);
+//scene.add(gameOverUIPopup);
 gameOverUIPopup.style.visibility = 'hidden';
+let scoreUIGameOver = document.getElementById('scoreGameOver');
 let loadingUIPopup = document.getElementById('loading');
-scene.add(loadingUIPopup);
+//scene.add(loadingUIPopup);
 //Gameplay Variables
 let cylinderRadius = 1 ;
 let sphereRadius = 0.15;
 let mainBallYPosition = cylinderRadius+sphereRadius+0.1;
 let gamePlaying;
 
-
+//controls variables
 let angle;
 let mouseX;
 let deltaX = 0;
-
 
 //pins variables
 let pinsCount = 10;
@@ -57,7 +57,7 @@ let negativeObstaclePoolPositon = [];
 //speed obstacles
 let obstaclesSpeed = 0.05;
 let addingSpeed = 0.00005;
-let addingSpriteSpeed = 0.0015;
+let addingSpriteSpeed = 0.003;
 let mainBallRotation = -0.1;
 let addingMainBallRotation = -0.00005;
 //sensivity variables
@@ -76,7 +76,6 @@ window.addEventListener('resize', function(){
     camera.aspect = width/height;
     camera.updateProjectionMatrix();//что это разобраться
 });
-
 
 //creating main Cylinder
 let cylinderGeometry = new THREE.CylinderGeometry(cylinderRadius,cylinderRadius,35,60);
@@ -98,22 +97,6 @@ let mainBall = new THREE.Mesh(ballGeometry, ballMaterial);
 mainBall.position.set(0,mainBallYPosition,-1.5);
 let mainBallPosition = new THREE.Vector3(0, mainBallYPosition, -1.5);
 scene.add(mainBall);
-
-//Axes
-//let axes = new THREE.AxesHelper(5);
-
-//scene.add( axes );
-//grid
-// gridHelper = new THREE.GridHelper(50,100);
-// gridHelper.position.set(0,0,0);
-// scene.add( gridHelper );
-
-
-//controls Orbit
-
-// controls = new THREE.OrbitControls(camera, renderer.domElement);
-//
-// scene.add(controls);
 
 //creating skittle
 let loading = true;
@@ -221,7 +204,6 @@ let Initialize = function() {
     score = 0;
     angle = 0;
     gameOverUIPopup.style.visibility = "hidden";
-    console.log("initialize");
     scoreUI.innerText = score;
 }
 Initialize();
@@ -284,7 +266,7 @@ let exit = false;
 
 let GameOver = function(){
     gameOverUIPopup.style.visibility = "visible";
-
+    scoreUIGameOver.innerText = score;
     exit = true;
     cancelAnimationFrame(gamePlaying);
 }
@@ -293,7 +275,7 @@ let Update=function(){
     obstaclesSpeed+=addingSpeed;
     mainBallRotation +=addingMainBallRotation;
     mainBall.rotation.x+=mainBallRotation;
-    addingSpriteSpeed+=0.000005;
+    addingSpriteSpeed+=0.0000025;
     cylinderTexture.offset.y-=addingSpriteSpeed;
 
     for(let i =0; i<pinsCount; i++)
@@ -353,9 +335,6 @@ let Update=function(){
 var Render = function(e){
     renderer.render(scene,camera);
 };
-
-
-
 //run game loop(update, render, repeat)
 var GameLoop = function()
 {
@@ -364,7 +343,6 @@ var GameLoop = function()
     {
         loadingUIPopup.style.visibility = 'hidden';
         loading = false;
-
     }
     if(!loading) {
         Update();
