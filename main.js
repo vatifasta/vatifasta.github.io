@@ -56,10 +56,10 @@ let negativeObstaclePoolPositon = [];
 
 //speed obstacles
 let obstaclesSpeed = 0.05;
-let addingSpeed = 0.0001;
-let addingSpriteSpeed = 0.003;
+let addingSpeed = 0.00005;
+let addingSpriteSpeed = 0.0015;
 let mainBallRotation = -0.1;
-let addingMainBallRotation = -0.0001;
+let addingMainBallRotation = -0.00005;
 //sensivity variables
 let sensitivity=300;
 let mobileSensitivity =70;
@@ -123,7 +123,7 @@ let createPin = function(i){
         pinPoolAngles[i] = Math.random() * 2 * Math.PI;
         var randomXPosition = -Math.sin(pinPoolAngles[i])*(cylinderRadius);
         var randomYPosition = Math.cos(pinPoolAngles[i])*(cylinderRadius);
-        var randomZPosition = Math.random()*(-20)-15;
+        var randomZPosition = Math.random()*(-20)-20;
         pinPoolPosition[i] = new THREE.Vector3(randomXPosition,randomYPosition,randomZPosition);
         for (let j = 0; j < pinsCount; j++) {
             if(pinPoolPosition[j])
@@ -154,13 +154,8 @@ let createPin = function(i){
     loader.load("./models/bowlPin.obj",function(object){
         object.position.set(randomXPosition,randomYPosition,randomZPosition);
         object.rotation.z=pinPoolAngles[i];
-        object.traverse( function( child ) {//разобрать с traverse
-            if ( child instanceof THREE.Mesh ) {//и с этим тоже
-                child.material = sMaterial;
-            }
-
-        } );
         pinPool[i] = object;
+        pinPool[i].material = sMaterial;
         scene.add(pinPool[i]);
         modelsLoaded++;
     })
@@ -176,7 +171,7 @@ let createNegativeObject = function(i){
         negativeObstaclePoolAngles[i] = Math.random()*2*Math.PI;
         var randomXPosition = -Math.sin(negativeObstaclePoolAngles[i])*(cylinderRadius+0.05);
         var randomYPosition = Math.cos(negativeObstaclePoolAngles[i])*(cylinderRadius+0.05);
-        var randomZPosition = Math.random()*(-20)-15;
+        var randomZPosition = Math.random()*(-20)-20;
         negativeObstaclePoolPositon[i] = new THREE.Vector3(randomXPosition,randomYPosition,randomZPosition);
         for (let j = 0; j < negativeObstaclesCount; j++) {
             if(negativeObstaclesPool[j])
