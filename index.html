@@ -8,18 +8,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/103/three.js"></script>
-<script src="./javascript/WebGL.js"></script>
-<script src="./javascript/OrbitControls.js"></script>
+<script src="./javascript/three.js"></script>
 <script src="./javascript/Math.js"></script>
 <script src="./javascript/OBJLoader.js"></script>
-<script src="./javascript/MMDPhysics.js"></script>
-<script>(function(){var script=document.createElement('script');script.onload=function(){var stats=new Stats();document.body.appendChild(stats.dom);requestAnimationFrame(function loop(){stats.update();requestAnimationFrame(loop)});};script.src='//mrdoob.github.io/stats.js/build/stats.min.js';document.head.appendChild(script);})()
-        </script>
+
+
 
 <div id="canvas">
     <div id="score"></div>
-<div id="gameOver">Game over!</br>Your score:
+    <div id="loading">Loading...</div>
+<div id="gameOver">Game over!</br>Your score:<script>score</script>
 </br>
 <button id="restartButton">restart</button></div>
 </div>

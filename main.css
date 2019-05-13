@@ -5,21 +5,42 @@ body {
     overflow-y:hidden;
     width: 100vw;
     height: 100vh;
-
+    user-select:none;
 }
-
+#loading{
+    width: 40%;
+    height: 35%;
+    background-color: rgba(0,0,0,0.2);
+    font-size: 3vw;
+    position: absolute;
+    border-radius: 25px;
+    color: white;
+    left: 20%;
+    text-align: center;
+}
 #gameOver {
-    width: 30%;
+    width: 25%;
     height: 30%;
-    background-color: #3300aa;
+    background-color: rgba(0,0,0,0.2);
+    font-size: 3vw;
     text-align: center;
     color: white;
     z-index: 2;
     position:absolute;
     left:35%;
     top:20%;
+    border-radius: 25px;
 }
-
+#restartButton{
+    border-radius: 10px;
+    background-color: rgb(200,70,30);
+    height: 15% ;
+    width: 30%;
+    border: none;
+    font-size: 1.5vw;
+    outline: 0px;
+    color: white;
+}
 canvas {
     display:block;
 

@@ -1,21 +1,35 @@
+//crating scene and camera
 let canvas = document.getElementById('canvas');
-//creating scene and camera
-let scene= new THREE.Scene();
-scene.fog = new THREE.Fog(0x000000, 0.1, 20);
-let camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1,15);
-let renderer = new THREE.WebGLRenderer(canvas);
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-renderer.setSize(window.innerWidth, window.innerHeight);
-let backgroundColor = new THREE.Color(0/255,24/255,37/255);
-backgroundColor.alpha = 1;
+let scene= new THREE.Scene();
+scene.fog = new THREE.Fog(0x85E0E0, 0.1, 20);
+let backgroundColor = new THREE.Color(0x85E0E0);
 scene.background = backgroundColor;
+
+let camera = new THREE.PerspectiveCamera(70, window.innerWidth/window.innerHeight, 0.1,15);
+camera.position.y=2.3;
+
+camera.rotation.x = -0.6;
+
+let renderer = new THREE.WebGLRenderer(canvas);
+renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);//разобраться что тут происходит
-//Game over popup
+
+//creating lights
+
+let lighting = new THREE.DirectionalLight(0xffffff, 1);
+lighting.position.set(0,0.9,1);
+lighting.rotation.set(-1,-0.5,0.6);
+scene.add(lighting);
+
+//UI
 let gameOverUIPopup = document.getElementById('gameOver');
 scene.add(gameOverUIPopup);
-
+gameOverUIPopup.style.visibility = 'hidden';
+let loadingUIPopup = document.getElementById('loading');
+scene.add(loadingUIPopup);
 //Gameplay Variables
 let cylinderRadius = 1 ;
 let sphereRadius = 0.15;
@@ -26,7 +40,7 @@ let gamePlaying;
 let angle;
 let mouseX;
 let deltaX = 0;
-let mouseDown = false;
+
 
 //pins variables
 let pinsCount = 10;
@@ -41,10 +55,11 @@ let negativeObstaclesCount = 10;
 let negativeObstaclePoolPositon = [];
 
 //speed obstacles
-let obstaclesSpeed = 0.3;
-let addingSpeed = 0.00001;
+let obstaclesSpeed = 0.05;
+let addingSpeed = 0.0001;
 let addingSpriteSpeed = 0.003;
-
+let mainBallRotation = -0.1;
+let addingMainBallRotation = -0.0001;
 //sensivity variables
 let sensitivity=300;
 let mobileSensitivity =70;
@@ -69,8 +84,7 @@ let cylinderTexture = new THREE.TextureLoader().load("./images/floor.png");
 cylinderTexture.wrapT = THREE.RepeatWrapping;
 cylinderTexture.wrapS =THREE.RepeatWrapping;
 cylinderTexture.repeat.set(2,2);
-var cylinderMaterial = new THREE.MeshLambertMaterial( { map: cylinderTexture } );//
-
+var cylinderMaterial = new THREE.MeshToonMaterial( { map: cylinderTexture } );//
 var cylinder = new THREE.Mesh( cylinderGeometry, cylinderMaterial );
 scene.add( cylinder );
 cylinder.rotation.x = Math.PI/2;
@@ -79,14 +93,12 @@ cylinder.rotation.x = Math.PI/2;
 
 let ballGeometry = new THREE.SphereGeometry(sphereRadius*2,64,64);
 let mainBallTexture = new THREE.TextureLoader().load("./images/ball.png");
-let ballMaterial = new THREE.MeshLambertMaterial({map: mainBallTexture});//map: mainBallTexture
+let ballMaterial = new THREE.MeshToonMaterial({map: mainBallTexture});//map: mainBallTexture
 let mainBall = new THREE.Mesh(ballGeometry, ballMaterial);
 mainBall.position.set(0,mainBallYPosition,-1.5);
 let mainBallPosition = new THREE.Vector3(0, mainBallYPosition, -1.5);
 scene.add(mainBall);
-camera.position.y=2.3;
 
-camera.rotation.x = -0.6;
 //Axes
 //let axes = new THREE.AxesHelper(5);
 
@@ -96,13 +108,7 @@ camera.rotation.x = -0.6;
 // gridHelper.position.set(0,0,0);
 // scene.add( gridHelper );
 
-//creating lights
 
-let lighting = new THREE.DirectionalLight(0xffffff, 1);
-lighting.position.set(0,1,1);
-lighting.rotation.set(-1,-0.6,0.6);
-//let lightningPoint = new THREE.PointLight(0xffffff, 1, 1,);
-scene.add(lighting);
 //controls Orbit
 
 // controls = new THREE.OrbitControls(camera, renderer.domElement);
@@ -110,6 +116,8 @@ scene.add(lighting);
 // scene.add(controls);
 
 //creating skittle
+let loading = true;
+let modelsLoaded = 0;
 let createPin = function(i){
     while(1) {
         pinPoolAngles[i] = Math.random() * 2 * Math.PI;
@@ -122,7 +130,6 @@ let createPin = function(i){
             {
                 if(Math.abs(pinPoolPosition[i].distanceTo(pinPoolPosition[j])<1.5)&&i!=j)
                 {
-                    console.log('reposition');
                     continue;
                 }
             }
@@ -139,12 +146,8 @@ let createPin = function(i){
         break;
     }
 
-    let sMaterial = new THREE.MeshLambertMaterial( { color: 0xff00ff } );
-    let modelLoaded= function(){
-
-        scene.add(pinPool[i]);
-    };
-    let manager = new THREE.LoadingManager(modelLoaded);
+    let sMaterial = new THREE.MeshToonMaterial( { color: 0xffffff } );
+    let manager = new THREE.LoadingManager();
     let loader = new THREE.OBJLoader(manager);
     pinPool[i] = new THREE.Mesh();
 
@@ -155,13 +158,16 @@ let createPin = function(i){
             if ( child instanceof THREE.Mesh ) {//и с этим тоже
                 child.material = sMaterial;
             }
+
         } );
         pinPool[i] = object;
+        scene.add(pinPool[i]);
+        modelsLoaded++;
     })
+
 }
 //deleting skittles
 let deletingPin = function(i){
-    pinPool[i].remove();
     scene.remove(pinPool[i]);
 }
 //creating Negative Objects
@@ -175,7 +181,7 @@ let createNegativeObject = function(i){
         for (let j = 0; j < negativeObstaclesCount; j++) {
             if(negativeObstaclesPool[j])
             {
-                if(Math.abs(negativeObstaclePoolPositon[i].distanceTo(negativeObstaclePoolPositon[j])<1.5)&&i!=j)
+                if(Math.abs(negativeObstaclePoolPositon[i].distanceTo(negativeObstaclePoolPositon[j])<2)&&i!=j)
                 {
                     continue;
                 }
@@ -183,11 +189,9 @@ let createNegativeObject = function(i){
         }
         break;
     }
-    let negativeObjectGeometry = new THREE.SphereGeometry(0.2,8,8);
-    let negativeObjectMaterial = new THREE.MeshLambertMaterial( { color: 0xff0000 } );
+    let negativeObjectGeometry = new THREE.SphereGeometry(0.2,32,32);
+    let negativeObjectMaterial = new THREE.MeshToonMaterial( { color: 0xff0000 } );
     negativeObstaclesPool[i] = new THREE.Mesh( negativeObjectGeometry, negativeObjectMaterial );
-
-
     negativeObstaclesPool[i].position.set(randomXPosition,randomYPosition,randomZPosition);
     negativeObstaclesPool[i].rotation.z = negativeObstaclePoolAngles[i];
     scene.add(negativeObstaclesPool[i]);
@@ -202,6 +206,8 @@ let deletingNegativeObject = function(i){
 let Initialize = function() {
     //creating skittles
     obstaclesSpeed = 0.05;
+    addingSpriteSpeed = 0.003;
+    mainBallRotation=-0.1;
     for(let i =0;i<pinsCount;i++)
     {
         if(pinPool[i]) {
@@ -230,18 +236,15 @@ Initialize();
 //Controls
 RotateCylinderWithMouse = function(e) {
     mouseX = e.clientX;
-   // e.preventDefault();
-    document.addEventListener( 'mousemove', OnDocumentMouseMoving, false );
-    document.addEventListener( 'mouseup', OnDocumentMouseUp, false );
-    document.addEventListener( 'mouseout', OnDocumentMouseOut, false );
-
-    mouseDown = true;
+    document.addEventListener( 'mousemove', OnDocumentMouseMoving);
+    document.addEventListener( 'mouseup', OnDocumentMouseUp);
+    document.addEventListener( 'mouseout', OnDocumentMouseOut);
 };
 RotateCylinderWithTouch = function(e){
     mouseX = e.touches[0].clientX;
-    document.addEventListener( 'touchmove', OnDocumentTouchMoving, false );
-    document.addEventListener( 'touchend', OnDocumentTouchEnd, false );
-    document.addEventListener( 'touchcancel', OnDocumentTouchEnd, false );
+    document.addEventListener( 'touchmove', OnDocumentTouchMoving);
+    document.addEventListener( 'touchend', OnDocumentTouchEnd);
+    document.addEventListener( 'touchcancel', OnDocumentTouchEnd);
 };
 document.addEventListener('mousedown', RotateCylinderWithMouse);
 document.addEventListener('touchstart', RotateCylinderWithTouch);
@@ -256,49 +259,48 @@ OnDocumentTouchMoving = function(e){
     deltaX = e.touches[0].clientX - mouseX;
     deltaX/=mobileSensitivity;
     mouseX = e.touches[0].clientX;
-    console.log("mobile move");
-
 }
 OnDocumentTouchEnd = function()
 {
-   // deltaX=0;
-    document.addEventListener( 'touchmove', OnDocumentTouchMoving, false );
-    document.addEventListener( 'touchend', OnDocumentMouseUp, false );
-    document.addEventListener( 'touchcancel', OnDocumentMouseOut, false );
+    deltaX=0;
+    document.addEventListener( 'touchmove', OnDocumentTouchMoving);
+    document.addEventListener( 'touchend', OnDocumentTouchEnd);
+    document.addEventListener( 'touchcancel', onDocumentTouchCancelled);
 }
 OnDocumentMouseUp = function(e){
     deltaX=0;
-    document.removeEventListener( 'mousemove', OnDocumentMouseMoving, false );
-    document.removeEventListener( 'mouseup', OnDocumentMouseUp, false );
-    document.removeEventListener( 'mouseout', OnDocumentMouseOut, false );
-
+    document.removeEventListener( 'mousemove', OnDocumentMouseMoving);
+    document.removeEventListener( 'mouseup', OnDocumentMouseUp);
+    document.removeEventListener( 'mouseout', OnDocumentMouseOut);
 };
 onDocumentTouchCancelled = function(){
-
+    deltaX=0;
+    document.addEventListener( 'touchmove', OnDocumentTouchMoving);
+    document.addEventListener( 'touchend', OnDocumentTouchEnd);
+    document.addEventListener( 'touchcancel', onDocumentTouchCancelled);
 }
 OnDocumentMouseOut = function(e){
     deltaX=0;
-    document.removeEventListener( 'mousemove', OnDocumentMouseMoving, false );
-    document.removeEventListener( 'mouseup', OnDocumentMouseUp, false );
-    document.removeEventListener( 'mouseout', OnDocumentMouseOut, false );
+    document.removeEventListener( 'mousemove', OnDocumentMouseMoving);
+    document.removeEventListener( 'mouseup', OnDocumentMouseUp);
+    document.removeEventListener( 'mouseout', OnDocumentMouseOut);
 };
 let exit = false;
 
 let GameOver = function(){
+    gameOverUIPopup.style.visibility = "visible";
+
     exit = true;
     cancelAnimationFrame(gamePlaying);
-    console.log('gameover');
 }
 //game Logic
-//let rotateAngle = null;
-
-
-
 let Update=function(){
     obstaclesSpeed+=addingSpeed;
-    mainBall.rotation.x-=0.1;
-    addingSpriteSpeed+=0.0000005;
+    mainBallRotation +=addingMainBallRotation;
+    mainBall.rotation.x+=mainBallRotation;
+    addingSpriteSpeed+=0.000005;
     cylinderTexture.offset.y-=addingSpriteSpeed;
+
     for(let i =0; i<pinsCount; i++)
     {
         pinPool[i].position.z+=obstaclesSpeed;
@@ -307,13 +309,10 @@ let Update=function(){
             deletingPin(i);
             createPin(i);
         }
-        let skittlePosition = new THREE.Vector3();
-        skittlePosition.setFromMatrixPosition(pinPool[i].matrixWorld);
-        if(skittlePosition.distanceTo(mainBallPosition)<0.52)
+        if(pinPool[i].position.distanceTo(mainBallPosition)<0.52)
         {
             score++;
             scoreUI.innerText = score;
-            //var physics = new THREE.MMDLoader().load()
             deletingPin(i);
             createPin(i);
         }
@@ -330,11 +329,10 @@ let Update=function(){
         negativeObstaclePosition.setFromMatrixPosition(negativeObstaclesPool[i].matrixWorld);
         if(negativeObstaclePosition.distanceTo(mainBallPosition)<0.52)
         {
-            gameOverUIPopup.style.visibility = "visible";
             GameOver();
         }
     }
-    if(Math.abs(deltaX)>(2/500)) {
+    if(Math.abs(deltaX)>(0.004)) {
         angle = deltaX;
         cylinder.rotation.y -= Math.sin(angle);
         //moving skittles
@@ -358,7 +356,6 @@ let Update=function(){
 
 //draw Scene
 var Render = function(e){
-
     renderer.render(scene,camera);
 };
 
@@ -367,19 +364,24 @@ var Render = function(e){
 //run game loop(update, render, repeat)
 var GameLoop = function()
 {
-
-    Update();
-    Render();
-    if(!exit) {
-        gamePlaying = requestAnimationFrame(GameLoop);
+    console.log(modelsLoaded);
+    if(modelsLoaded == pinsCount)
+    {
+        loadingUIPopup.style.visibility = 'hidden';
+        loading = false;
 
     }
-
+    if(!loading) {
+        Update();
+        Render();
+    }
+    if(!exit) {
+        gamePlaying = requestAnimationFrame(GameLoop);
+    }
 };
 GameLoop();
 let Restart = function(){
     exit = false;
-
     Initialize();
     requestAnimationFrame(GameLoop);
 
