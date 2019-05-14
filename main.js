@@ -74,7 +74,7 @@ window.addEventListener('resize', function(){
     var height = window.innerHeight;
     renderer.setSize(width, height);
     camera.aspect = width/height;
-    camera.updateProjectionMatrix();//что это разобраться
+    camera.updateProjectionMatrix();
 });
 
 //creating main Cylinder
@@ -104,8 +104,8 @@ let modelsLoaded = 0;
 let createPin = function(i){
     while(1) {
         pinPoolAngles[i] = Math.random() * 2 * Math.PI;
-        var randomXPosition = -Math.sin(pinPoolAngles[i])*(cylinderRadius);
-        var randomYPosition = Math.cos(pinPoolAngles[i])*(cylinderRadius);
+        var randomXPosition = Math.cos(pinPoolAngles[i])*(cylinderRadius);
+        var randomYPosition = Math.sin(pinPoolAngles[i])*(cylinderRadius);
         var randomZPosition = Math.random()*(-20)-20;
         pinPoolPosition[i] = new THREE.Vector3(randomXPosition,randomYPosition,randomZPosition);
         for (let j = 0; j < pinsCount; j++) {
@@ -133,7 +133,6 @@ let createPin = function(i){
     let manager = new THREE.LoadingManager();
     let loader = new THREE.OBJLoader(manager);
     pinPool[i] = new THREE.Mesh();
-
     loader.load("./models/bowlPin.obj",function(object){
         object.position.set(randomXPosition,randomYPosition,randomZPosition);
         object.rotation.z=pinPoolAngles[i];
@@ -152,8 +151,8 @@ let deletingPin = function(i){
 let createNegativeObject = function(i){
     while(1) {
         negativeObstaclePoolAngles[i] = Math.random()*2*Math.PI;
-        var randomXPosition = -Math.sin(negativeObstaclePoolAngles[i])*(cylinderRadius+0.05);
-        var randomYPosition = Math.cos(negativeObstaclePoolAngles[i])*(cylinderRadius+0.05);
+        var randomXPosition = -Math.sin(negativeObstaclePoolAngles[i])*(cylinderRadius+0.1);
+        var randomYPosition = Math.cos(negativeObstaclePoolAngles[i])*(cylinderRadius+0.1);
         var randomZPosition = Math.random()*(-20)-20;
         negativeObstaclePoolPositon[i] = new THREE.Vector3(randomXPosition,randomYPosition,randomZPosition);
         for (let j = 0; j < negativeObstaclesCount; j++) {
@@ -203,6 +202,7 @@ let Initialize = function() {
     }
     score = 0;
     angle = 0;
+    modelsLoaded = 0;
     gameOverUIPopup.style.visibility = "hidden";
     scoreUI.innerText = score;
 }
@@ -297,7 +297,6 @@ let Update=function(){
     for(let i=0; i<negativeObstaclesCount;i++)
     {
         negativeObstaclesPool[i].position.z+= obstaclesSpeed;
-        //написать удаление негативных объектов
         if(negativeObstaclesPool[i].position.z>0) {
             deletingNegativeObject(i);
             createNegativeObject(i);
