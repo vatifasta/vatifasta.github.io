@@ -104,8 +104,8 @@ let modelsLoaded = 0;
 let createPin = function(i){
     while(1) {
         pinPoolAngles[i] = Math.random() * 2 * Math.PI;
-        var randomXPosition = Math.cos(pinPoolAngles[i])*(cylinderRadius);
-        var randomYPosition = Math.sin(pinPoolAngles[i])*(cylinderRadius);
+        var randomXPosition = -Math.sin(pinPoolAngles[i])*(cylinderRadius);
+        var randomYPosition = Math.cos(pinPoolAngles[i])*(cylinderRadius);
         var randomZPosition = Math.random()*(-20)-20;
         pinPoolPosition[i] = new THREE.Vector3(randomXPosition,randomYPosition,randomZPosition);
         for (let j = 0; j < pinsCount; j++) {
