@@ -55,10 +55,10 @@ let negativeObstaclesCount = 10;
 let negativeObstaclePoolPositon = [];
 
 //speed obstacles
-let obstaclesSpeed = 0.05;
+let obstaclesSpeed = 0.075;
 let addingSpeed = 0.00005;
-let addingSpriteSpeed = 0.003;
-let mainBallRotation = -0.1;
+let addingSpriteSpeed = 0.0045;
+let mainBallRotation = -0.15;
 let addingMainBallRotation = -0.00005;
 //sensivity variables
 let sensitivity=300;
@@ -182,9 +182,9 @@ let deletingNegativeObject = function(i){
 //Initializing function
 let Initialize = function() {
     //creating skittles
-    obstaclesSpeed = 0.05;
-    addingSpriteSpeed = 0.003;
-    mainBallRotation=-0.1;
+    obstaclesSpeed = 0.075;
+    addingSpriteSpeed = 0.0045;
+    mainBallRotation=-0.15;
     for(let i =0;i<pinsCount;i++)
     {
         if(pinPool[i]) {
